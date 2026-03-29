@@ -1,0 +1,65 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ========================
+# Virtual Environment
+# ========================
+venv/
+.venv/
+env/
+
+# ========================
+# Environment & Secrets
+# ========================
+.env
+*.env.*
+*.key
+*.pem
+
+# ========================
+# Google ADK
+# ========================
+.adk/
+
+# ========================
+# Generated & Temporary Files
+# ========================
+err.log
+*.log
+rag_docs_to_upload/
+
+# ========================
+# Evaluation Outputs
+# ========================
+rag_lc_agent/tests/evaluation_results.csv
+
+# ========================
+# Private Documentation
+# ========================
+links.md
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.suo
+*.user
+*.workspace
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini

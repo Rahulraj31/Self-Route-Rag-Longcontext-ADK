@@ -1,0 +1,19 @@
+# GlobalCorp Internal Policy: Remote Work and Telecommuting Guidelines
+Effective Date: January 1, 2025
+Last Updated: March 15, 2026
+
+1. ELIGIBILITY
+Remote work is available to all full-time employees whose job duties do not require physical presence in the office (e.g., laboratory staff, facilities management). Approval must be granted by the direct manager.
+
+2. CORE WORKING HOURS
+All remote employees, regardless of their physical timezone, must be online and available for synchronous communication during the company's "Core Hours" of 10:00 AM to 3:00 PM EST (Eastern Standard Time). Outside of core hours, employees may work fully flexibly to complete their standard 40-hour work week.
+
+3. HOME OFFICE STIPEND AND EQUIPMENT
+To ensure a safe and productive environment, GlobalCorp provides a one-time $1,000 WFH (Work From Home) stipend for new employees to purchase an ergonomic chair, desk, and external monitor. Receipts must be submitted via Workday within 30 days of purchase for reimbursement.
+Additionally, a recurring monthly stipend of $100 is provided to cover home internet and personal phone usage. Employees must maintain an internet connection with a minimum download speed of 100 Mbps and upload speed of 20 Mbps to remain eligible for the stipend.
+
+4. EQUIPMENT AND SECURITY
+All work must be conducted on company-issued laptops (MacBook Pro M3 or Dell XPS 15). The use of personal devices for accessing the GlobalCorp VPN or sensitive customer data is strictly prohibited. Employees must ensure their home Wi-Fi network is password-protected using WPA3 encryption. USB mass storage devices are disabled on all remote laptops.
+
+5. RELOCATION
+Employees may work temporarily from any location within their home country for up to 90 days per calendar year. Permanent relocation to a different state or country requires HR approval 60 days in advance due to tax and payroll compliance requirements.

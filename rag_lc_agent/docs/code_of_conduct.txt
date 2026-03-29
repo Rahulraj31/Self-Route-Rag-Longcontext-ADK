@@ -1,0 +1,20 @@
+# GlobalCorp Internal Policy: Code of Conduct and Workplace Behavior
+Effective Date: March 1, 2024
+
+1. ANTI-HARASSMENT AND DISCRIMINATION
+GlobalCorp maintains a zero-tolerance policy against harassment, discrimination, or bullying based on race, color, religion, sex, sexual orientation, gender identity, national origin, age, disability, or genetic information. 
+
+2. REPORTING INCIDENTS
+Employees who witness or experience violations of the Code of Conduct should immediately report the incident through one of the following channels:
+a. Their direct manager or department head.
+b. Their designated HR Business Partner (HRBP).
+c. The anonymous GlobalCorp Ethics Hotline, available 24/7 at 1-800-555-0199 or online at ethics.globalcorp.internal.
+
+3. NON-RETALIATION
+GlobalCorp strictly prohibits retaliation against any employee who reports an incident in good faith or participates in an investigation. Any employee found engaging in retaliatory behavior will face immediate termination.
+
+4. CONFLICT OF INTEREST
+Employees must disclose any relationships, investments, or outside business activities that could inappropriately influence their decisions at GlobalCorp. This includes accepting gifts over $50 from vendors or clients. All disclosures must be logged in the "Conflict of Interest Portal" within Workday.
+
+5. CONFIDENTIALITY
+All internal strategies, financial data, and customer information are strictly confidential. Discussing unreleased products in public forums, social media, or with family members is prohibited. Violations of the Non-Disclosure Agreement (NDA) may result in legal action.
