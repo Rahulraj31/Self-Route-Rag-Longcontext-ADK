@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 from google.adk.agents import Agent, SequentialAgent
+from google.adk.tools import AgentTool
 
 # Import sub-agents
 from .config import AGENT_MODEL
@@ -19,9 +20,14 @@ rag_pipeline = SequentialAgent(
 # -----------------------------
 # ROOT ROUTER: Conversational Agent
 # -----------------------------
+
+rag_pipeline_tool = AgentTool(agent=rag_pipeline)
+long_context_tool = AgentTool(agent=lc_agent)
+
+
 root_agent = Agent(
     name="self_route_main_agent",
     model=AGENT_MODEL,
     instruction=ROUTER_AGENT_INSTRUCTION,
-    sub_agents=[rag_pipeline, lc_agent]
+    tools=[rag_pipeline_tool, long_context_tool]
 )

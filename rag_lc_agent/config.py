@@ -5,9 +5,12 @@ from dotenv import load_dotenv
 _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(_env_path)
 
+_base_dir = os.path.dirname(os.path.abspath(__file__))
+DOCS_FOLDER = os.path.abspath(os.path.join(_base_dir, os.getenv("DOCS_FOLDER", "./docs")))
+
 AGENT_MODEL = os.getenv("AGENT_MODEL", "gemini-2.5-flash")
 DATASTORE_RESOURCE = os.getenv("DATASTORE_RESOURCE")
-DOCS_FOLDER = os.getenv("DOCS_FOLDER", "./docs")
+
 MAX_RESULTS = int(os.getenv("MAX_RESULTS", 3))
 SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
 

@@ -77,7 +77,7 @@ async def run_evaluation():
     with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         # Added 'Eval Agent Response' column per user request
-        writer.writerow(["Category", "Query", "Final Answer", "Eval Agent Response", "Correctness", "Faithfulness", "Completeness", "Judge Reasoning"])
+        writer.writerow(["Category", "Query", "Final Answer", "Eval Agent Response for RAG Agent", "Correctness", "Faithfulness", "Completeness", "Judge Reasoning"])
 
         for i, test in enumerate(TEST_CASES):
             print(f"\n--- Running Test {i+1}/9: {test['category']} ---")
