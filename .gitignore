@@ -38,10 +38,6 @@ err.log
 *.log
 rag_docs_to_upload/
 
-# ========================
-# Evaluation Outputs
-# ========================
-rag_lc_agent/tests/evaluation_results.csv
 
 # ========================
 # Private Documentation
