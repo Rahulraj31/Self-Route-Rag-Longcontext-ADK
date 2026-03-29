@@ -5,7 +5,7 @@
 
 ## 📖 About the Paper
 
-This project is a practical implementation of **Self-Route**, a method introduced in the paper [**"Retrieval Augmented Generation or Long-Context LLMs? A Comprehensive Study and Hybrid Approach"**](https://arxiv.org/abs/2407.16833) (arXiv:2407.16833).
+This project implements **Self-Route**, as described in [**"Retrieval Augmented Generation or Long-Context LLMs? A Comprehensive Study and Hybrid Approach"**](https://arxiv.org/abs/2407.16833).
 
 ### How Self-Route actually works (step-by-step)
 
@@ -26,127 +26,102 @@ The paper proposes a two-stage routing pipeline:
 
 ## 🏗️ Core Architecture
 
-The system utilizes a **Self-Reflective Router** that orchestrates between a high-speed RAG pipeline and a high-precision Long-Context fallback.
+The updated architecture uses a **Pre-Generation Evaluator Gate** to optimize routing before the final answer is generated.
+
+### Architecture Overview (Text)
+
+```
+Self Route
+├── Retriever Agent
+├── Evaluator Agent
+│   ├── answerable → RAG Agent
+│   └── not_answerable → Long Context Agent
+```
+
+### Routing Flow (Diagram)
 
 ```mermaid
 graph TD
     User([User Query]) --> Router{Self-Route Router}
-    Router -- "1. Invoke Tool" --> RAG_Pipe[RAG Pipeline]
 
-    subgraph RAG_Pipeline [Sequential Pipeline]
-    RAG_Agent[RAG Data Agent] -- "rag_answer" --> Eval_Agent[Evaluator Agent]
-    Eval_Agent -- "rag_eval {decision, reason, rag_answer}" --> RAG_Pipe
-    end
+    Router -- "1. Fetch" --> Retriever[Retriever Agent]
+    Retriever -- "retrieved_chunks" --> Router
 
-    RAG_Pipe -- "'answerable'" --> Router
-    RAG_Pipe -- "'not_answerable'" --> LC_Fallback[Long Context Agent]
+    Router -- "2. Evaluate" --> Evaluator[Evaluator Agent]
+    Evaluator -- "decision: answerable/not_answerable" --> Router
 
-    Router -- "Pure Relay (Status: answerable)" --> Final_Ans([Final Answer])
-    LC_Fallback -- "Deep Dive (Status: not_answerable/answerable)" --> Final_Ans
+    Router -- "3a. If answerable" --> RAG[RAG Answer Agent]
+    Router -- "3b. If not_answerable" --> LC[Long Context Agent]
+
+    RAG --> Final([Final Answer])
+    LC --> Final
 ```
 
-1. **RAG Data Agent** — Searches the Vertex AI Datastore. Strictly grounded to GlobalCorp policies.
-2. **Evaluator Agent** — A structured Pydantic judge that validates the RAG output. If the result is ungrounded or missing, it issues a `not_answerable` signal.
-3. **Long Context (LC) Agent** — The ultimate fallback. Ingests raw text files directly for deep reading comprehension, capturing details that RAG chunks might miss.
+### Agent Responsibilities
+
+- **Retriever Agent**: Fetches top-k document chunks from Vertex AI Search.
+- **Evaluator Agent**: Decides if chunks are sufficient to answer the query (pre-generation gate).
+- **RAG Agent**: Generates a grounded answer using only the retrieved chunks (triggered only if answerable).
+- **Long Context Agent**: Performs deep-reading synthesis across full document texts (triggered only if not answerable).
 
 ## 📂 Repository Structure
 
 ```
 Self-Route LLM/
-│
 ├── README.md                    # This file (Architecture & Setup)
-├── generate_rag_files.py        # Procedurally generate .pdf / .docx for RAG Datastore
-│
 └── rag_lc_agent/                # Main Agent Module
-    ├── README.md                # Module architecture & components
-    ├── agent.py                 # Root Conversational Router (Self-Route entrypoint)
-    ├── config.py                # Environment & Configuration manager
-    ├── instructions.py          # Unified system prompts (RAG, Eval, LC, Router)
-    ├── tool.py                  # Long Context ingestion utility
-    │
-    ├── subagents/               # Agent definitions
-    │   ├── rag.py               # Vertex AI Search Agent
-    │   ├── evaluator.py         # Structured Evaluator (Pydantic schema)
+    ├── agent.py                 # Self-Route Router (4-tool Orchestrator)
+    ├── subagents/
+    │   ├── retreiver.py         # [NEW] Chunk fetcher
+    │   ├── evaluator.py         # Pre-eval logic (gatekeeper)
+    │   ├── rag.py               # RAG generation agent
     │   └── long_context.py      # Full-context Fallback Agent
-    │
-    ├── tests/                   # Validation Framework
-    │   ├── test_data.py         # 12 Categorized test cases
-    │   ├── eval_metrics.py      # LLM-as-a-Judge scoring (1-5 scale)
-    │   └── run_evals.py         # Automated execution script → evaluation_results.csv
-    │
-    └── docs/                    # Ground-truth policies for Long Context Agent
-        ├── remote_work_policy.txt
-        ├── travel_policy.txt      # Detailed Travel & Per Diem
-        ├── code_of_conduct.txt
-        └── parental_leave_appendix.txt # Detailed edge cases
+    ├── tests/
+    │   ├── test_data.py         # 6 Categorized benchmark cases
+    │   └── run_evals.py         # Automated evaluation script
+    └── docs/                    # Ground-truth policies for Long Context
 ```
 
-## ⚙️ Setup Instructions
+## 🚀 Evaluation Pipeline (`run_evals.py`)
 
-### 1. Prerequisites
+The evaluation script validates the routing logic by capturing:
 
-Python 3.10+ and a Google Cloud Project with Vertex AI Search enabled.
+1.  **Route**: Which path was taken (`rag` or `long_context`).
+2.  **Final Answer**: The actual response text.
+3.  **LLM-as-a-Judge Scores**: Correctness, Faithfulness, and Completeness.
 
-### 2. Install Dependencies
+### CSV Output Format
 
-```bash
-pip install -r requirements.txt
-```
+| Column              | Description                                             |
+| :------------------ | :------------------------------------------------------ |
+| **Category**        | The test category (RAG_ONLY, AMBIGUOUS, etc.)           |
+| **Query**           | The user input                                          |
+| **Ground Truth**    | The reference answer from the source documents          |
+| **Expected Route**  | The ground-truth routing path (`rag` or `long_context`) |
+| **Actual Route**    | The actual path taken by the agent                      |
+| **Route Correct**   | Boolean (True/False) comparison                         |
+| **Final Answer**    | The actual text response returned                       |
+| **Correctness**     | Judge score (1-5)                                       |
+| **Faithfulness**    | Judge score (1-5)                                       |
+| **Completeness**    | Judge score (1-5)                                       |
+| **Judge Reasoning** | The LLM's explanation for the scores                    |
 
-### 3. Configure Environment
+## 📊 Evaluation Strategy
 
-Populate `rag_lc_agent/.env` with your project and datastore details. Example:
+This runs benchmark test queries across **6 strict categories**:
 
-```bash
-GOOGLE_GENAI_USE_VERTEXAI=1
-GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_CLOUD_LOCATION=us-central1
-DATASTORE_RESOURCE=projects/<PROJECT_NUMBER>/locations/global/collections/default_collection/dataStores/<DATASTORE_ID>
-SEARCH_ENGINE_ID=projects/<PROJECT_NUMBER>/locations/global/collections/default_collection/engines/<ENGINE_ID>
-DOCS_FOLDER=./docs
-MAX_RESULTS=3
-AGENT_MODEL=gemini-2.5-flash
-```
-
-### 4. Seed RAG Datastore
-
-Run the generator and upload the files in `rag_docs_to_upload/` to your Vertex AI Search datastore:
-
-```bash
-python generate_rag_files.py
-```
-
-## 🚀 Running the Agent
-
-### Start Conversational Web UI
-
-```bash
-adk web
-```
-
-### Run Automated Evaluation Suite
-
-```bash
-python -m rag_lc_agent.tests.run_evals
-```
-
-### 📊 Evaluation Strategy
-
-This runs **12 baseline test queries** across **4 strict categories** as defined in the codebase:
-
-1.  **RAG Unique**: Information specifically available only in the RAG datastore.
-2.  **RAG > LC**: Information where the RAG context (extracted chunks) is superior to the local text summaries.
-3.  **LC > RAG**: Specific policy details (e.g., specific dollar amounts or per diems) found in local docs but missing/summarized in RAG.
-4.  **LC Unique**: Complex synthesis or hidden data points requiring a full document scan (e.g., hotline numbers, specific nightly rates).
-
-> [!NOTE]
-> All test cases and ground truth data were generated using AI for research and demonstration purposes.
+1.  **RAG_ONLY**: Single fact answerable via standard retrieval.
+2.  **LONG_CONTEXT_ONLY**: High-precision answer exists only in the full local document.
+3.  **AMBIGUOUS**: Query missing constraints requiring a full policy scan.
+4.  **FAIL_RETRIEVAL**: Cases where the retriever returns incorrect or partial chunks.
+5.  **EDGE_CASE_SHORT**: Very short/unclear query requiring deep context.
+6.  **EDGE_CASE_MULTI_HOP**: Requires combining multiple sections or documents.
 
 ---
 
 ## ✍️ Author & Connect
 
-If you found this project helpful, please **star the repository**! 🌟
+If you found this helpful, please **star the repository**! 🌟
 
-- **Medium**: [Read more articles on AI & RAG](https://medium.com/@pandeyrahulraj99)
-- **LinkedIn**: [Connect with me on LinkedIn](https://www.linkedin.com/in/rahulraj31/)
+- **Medium**: [Articles on AI & RAG](https://medium.com/@pandeyrahulraj99)
+- **LinkedIn**: [Rahul Raj](https://www.linkedin.com/in/rahulraj31/)

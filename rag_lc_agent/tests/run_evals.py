@@ -1,124 +1,222 @@
 import asyncio
 import csv
-import sys
 import os
 import uuid
-
-# Append project root to path so we can cleanly import our agents
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-from rag_lc_agent.agent import root_agent
-from rag_lc_agent.tests.eval_metrics import judge_agent
-from rag_lc_agent.tests.test_data import TEST_CASES
+from typing import Tuple, Optional
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
+from ..agent import root_agent
+from .eval_metrics import judge_agent, EvalMetrics
+from .test_data import TEST_CASES
+
+
 APP_NAME = "self_route_eval"
 USER_ID = "eval_user"
+SESSION_ID = "eval_session"
 
-import re
+session_service = InMemorySessionService()
 
-async def get_final_answer_and_eval(runner: Runner, session_id: str, query: str):
-    """Invoke the root agent and collect both final text and the internal eval state."""
-    content = types.Content(role="user", parts=[types.Part(text=query)])
-    final_parts = []
-    internal_eval = None
-    
+runner = Runner(
+    agent=root_agent,
+    app_name=APP_NAME,
+    session_service=session_service
+)
+
+
+# -----------------------------
+# Get final answer + route
+# -----------------------------
+async def get_final_answer_and_route(query: str) -> Tuple[str, Optional[str]]:
+
+    content = types.Content(
+        role="user",
+        parts=[types.Part(text=query)]
+    )
+
+    final_answer = ""
+    route_taken = None
+
     async for event in runner.run_async(
         user_id=USER_ID,
-        session_id=session_id,
+        session_id=SESSION_ID,
         new_message=content
     ):
-        # 1. Collect text
-        if event.is_final_response() and event.content and event.content.parts:
-            for part in event.content.parts:
-                if part.text:
-                    final_parts.append(part.text)
-        
-        # 2. Capture internal rag_eval state delta if present
-        if (getattr(event, 'actions', None)
-                and getattr(event.actions, 'state_delta', None)
-                and "rag_eval" in event.actions.state_delta):
-            internal_eval = event.actions.state_delta["rag_eval"]
-            
-    full_text = "".join(final_parts).strip()
-    # Remove internal JSON leakage from the text stream for the user-facing answer
-    clean_text = re.sub(r'\{.*?"decision".*?\}', '', full_text, flags=re.DOTALL).strip()
-    return clean_text, internal_eval
 
-async def get_eval_scores(judge_runner: Runner, session_id: str, query: str, ground_truth: str, answer: str):
-    """Invoke the LLM judge and return the EvalMetrics output."""
-    judge_input = f"User Query: {query}\nExpected Ground Truth: {ground_truth}\nCandidate Answer: {answer}"
-    content = types.Content(role="user", parts=[types.Part(text=judge_input)])
+        # capture routing decision
+        if event.actions and event.actions.state_delta:
+            delta = event.actions.state_delta
+
+            if "rag_eval" in delta:
+                decision_obj = delta["rag_eval"]
+
+                if isinstance(decision_obj, dict):
+                    decision = decision_obj.get("decision")
+                else:
+                    decision = decision_obj.decision
+
+                if decision == "answerable":
+                    route_taken = "rag"
+                else:
+                    route_taken = "long_context"
+
+        # capture final response
+        if event.is_final_response():
+            if event.content and event.content.parts:
+                final_answer = event.content.parts[0].text
+
+    return final_answer.strip(), route_taken
+
+
+# -----------------------------
+# Judge
+# -----------------------------
+async def judge_answer(
+    query: str,
+    ground_truth: str,
+    candidate: str
+) -> EvalMetrics:
+
+    prompt = f"""
+User Query:
+{query}
+
+Ground Truth:
+{ground_truth}
+
+Candidate Answer:
+{candidate}
+"""
+
+    judge_session_id = f"judge_{uuid.uuid4()}"
+
+    await session_service.create_session(
+        app_name="judge",
+        user_id="judge_user",
+        session_id=judge_session_id
+    )
+
+    judge_runner = Runner(
+        agent=judge_agent,
+        app_name="judge",
+        session_service=session_service
+    )
+
+    content = types.Content(
+        role="user",
+        parts=[types.Part(text=prompt)]
+    )
+
     async for event in judge_runner.run_async(
-        user_id=USER_ID,
-        session_id=session_id,
+        user_id="judge_user",
+        session_id=judge_session_id,
         new_message=content
     ):
-        if (getattr(event, 'actions', None)
-                and getattr(event.actions, 'state_delta', None)
-                and "eval_result" in event.actions.state_delta):
-            return event.actions.state_delta["eval_result"]
-    return None
 
-async def run_evaluation():
+        if event.actions and event.actions.state_delta:
+            delta = event.actions.state_delta
+
+            if "eval_result" in delta:
+                result = delta["eval_result"]
+
+                if isinstance(result, dict):
+                    return EvalMetrics(**result)
+
+                return result
+
+    raise RuntimeError("Judge failed")
+
+
+# -----------------------------
+# Main Eval Loop
+# -----------------------------
+async def run_evals():
+
+    await session_service.create_session(
+        app_name=APP_NAME,
+        user_id=USER_ID,
+        session_id=SESSION_ID
+    )
+
     test_dir = os.path.dirname(__file__)
     os.makedirs(test_dir, exist_ok=True)
+
     csv_file = os.path.join(test_dir, "evaluation_results.csv")
 
-    print(f"Starting Automated Pipeline. Results will be saved to: {csv_file}")
+    print("\nStarting Self-Route Evaluation")
+    print(f"Results will be saved to: {csv_file}")
 
-    session_service = InMemorySessionService()
-    main_runner = Runner(agent=root_agent, app_name=APP_NAME, session_service=session_service)
-    judge_runner = Runner(agent=judge_agent, app_name=APP_NAME, session_service=session_service)
+    total = len(TEST_CASES)
 
-    with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
+    with open(csv_file, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        # Added 'Eval Agent Response' column per user request
-        writer.writerow(["Category", "Query", "Final Answer", "Eval Agent Response for RAG Agent", "Correctness", "Faithfulness", "Completeness", "Judge Reasoning"])
 
-        for i, test in enumerate(TEST_CASES):
-            print(f"\n--- Running Test {i+1}/{len(TEST_CASES)}: {test['category']} ---")
-            print(f"Query: {test['query']}")
+        writer.writerow([
+            "Category",
+            "Query",
+            "Ground Truth",
+            "Expected Route",
+            "Actual Route",
+            "Route Correct",
+            "Final Answer",
+            "Correctness",
+            "Faithfulness",
+            "Completeness",
+            "Judge Reasoning"
+        ])
 
-            session_id = f"eval_session_{uuid.uuid4().hex}"
-            await session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=session_id)
+        file.flush()
 
-            # --- 1. Get Answer and Internal Eval ---
-            try:
-                final_answer, internal_eval = await get_final_answer_and_eval(main_runner, session_id, test["query"])
-                print(f"Answer Generated. Length: {len(final_answer)} chars.")
-            except Exception as e:
-                print(f"Error invoking root_agent: {e}")
-                final_answer, internal_eval = f"ERROR: {str(e)}", None
+        for idx, test in enumerate(TEST_CASES, start=1):
 
-            # --- 2. Evaluate using LLM Judge ---
-            judge_session_id = f"judge_session_{uuid.uuid4().hex}"
-            await session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=judge_session_id)
+            print(f"\n[{idx}/{total}] {test['category']}")
+            print("Query:", test["query"])
 
-            try:
-                eval_result = await get_eval_scores(judge_runner, judge_session_id, test["query"], test["ground_truth"], final_answer)
-            except Exception as e:
-                print(f"Error running evaluator judge: {e}")
-                eval_result = None
+            final_answer, actual_route = await get_final_answer_and_route(
+                test["query"]
+            )
 
-            if eval_result:
-                c = eval_result.get("correctness", 0) if isinstance(eval_result, dict) else eval_result.correctness
-                f = eval_result.get("faithfulness", 0) if isinstance(eval_result, dict) else eval_result.faithfulness
-                comp = eval_result.get("completeness", 0) if isinstance(eval_result, dict) else eval_result.completeness
-                reason = eval_result.get("reasoning", "") if isinstance(eval_result, dict) else eval_result.reasoning
-                
-                print(f"Scores -> Correctness: {c}/5 | Faithfulness: {f}/5 | Completeness: {comp}/5")
-                writer.writerow([test["category"], test["query"], final_answer, str(internal_eval), c, f, comp, reason])
-            else:
-                print("Evaluation failed to extract metrics.")
-                writer.writerow([test["category"], test["query"], final_answer, str(internal_eval), 0, 0, 0, "Evaluation parsing failed."])
+            expected_route = test["expected_route"]
+            ground_truth = test["ground_truth"]
+
+            route_correct = actual_route == expected_route
+
+            metrics = await judge_answer(
+                test["query"],
+                ground_truth,
+                final_answer
+            )
+
+            writer.writerow([
+                test["category"],
+                test["query"],
+                ground_truth,
+                expected_route,
+                actual_route,
+                route_correct,
+                final_answer,
+                metrics.correctness,
+                metrics.faithfulness,
+                metrics.completeness,
+                metrics.reasoning
+            ])
 
             file.flush()
 
-    print("\n--- Evaluation Complete! Results saved. ---")
+            print("Expected Route:", expected_route)
+            print("Actual Route:", actual_route)
+            print("Route Correct:", route_correct)
+            print("Scores:",
+                  metrics.correctness,
+                  metrics.faithfulness,
+                  metrics.completeness
+                  )
 
+
+# -----------------------------
+# Run
+# -----------------------------
 if __name__ == "__main__":
-    asyncio.run(run_evaluation())
+    asyncio.run(run_evals())
