@@ -80,7 +80,7 @@ async def run_evaluation():
         writer.writerow(["Category", "Query", "Final Answer", "Eval Agent Response for RAG Agent", "Correctness", "Faithfulness", "Completeness", "Judge Reasoning"])
 
         for i, test in enumerate(TEST_CASES):
-            print(f"\n--- Running Test {i+1}/9: {test['category']} ---")
+            print(f"\n--- Running Test {i+1}/{len(TEST_CASES)}: {test['category']} ---")
             print(f"Query: {test['query']}")
 
             session_id = f"eval_session_{uuid.uuid4().hex}"

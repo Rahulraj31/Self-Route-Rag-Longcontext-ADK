@@ -31,17 +31,32 @@ TEST_CASES = [
     },
     {
         "category": "LC > RAG",
-        "query": "Exactly how much is the one-time remote work stipend provided to new employees?",
-        "ground_truth": "$1,000 one-time WFH stipend to purchase an ergonomic chair, desk, and external monitor."
+        "query": "According to the GlobalCorp Travel Policy, what is the exact daily per diem for a business trip to a high-cost city (e.g., Tokyo or London)?",
+        "ground_truth": "$120 per day."
     },
     {
         "category": "LC > RAG",
-        "query": "What are the minimum internet download and upload speed requirements for remote employees to receive the stipend?",
-        "ground_truth": "Minimum download speed of 100 Mbps and upload speed of 20 Mbps."
+        "query": "Regarding GlobalCorp's parental leave, what is the specific rule if a scheduled company holiday falls during the leave period?",
+        "ground_truth": "The leave duration is automatically extended by one business day."
     },
     {
         "category": "LC > RAG",
-        "query": "Which specific laptop models are company-issued for remote work, and is USB mass storage allowed?",
-        "ground_truth": "MacBook Pro M3 or Dell XPS 15. USB mass storage devices are strictly disabled and prohibited."
+        "query": "What is the GlobalCorp monthly childcare subsidy amount per child?",
+        "ground_truth": "$500 per child monthly."
+    },
+    {
+        "category": "LC Unique",
+        "query": "What is the GlobalCorp Travel Reimbursement Hotline phone number?",
+        "ground_truth": "1-888-GLOBAL-TRV."
+    },
+    {
+        "category": "LC Unique",
+        "query": "What is the GlobalCorp Ethics Hotline 24/7 phone number mentioned in the Code of Conduct?",
+        "ground_truth": "1-800-555-0199."
+    },
+    {
+        "category": "LC Unique",
+        "query": "What is the maximum nightly hotel rate for NYC as per GlobalCorp policy?",
+        "ground_truth": "$400."
     }
 ]

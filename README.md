@@ -3,83 +3,109 @@
 > **Research Implementation**: This project is a practical implementation of **Self-Route**, a method introduced in the paper **["Retrieval Augmented Generation or Long-Context LLMs? A Comprehensive Study and Hybrid Approach"](https://arxiv.org/abs/2407.16833)** (arXiv:2407.16833). Self-Route reduces computation cost by dynamically routing queries to RAG or Long-Context LLMs based on model self-reflection.
 
 ## 🏗️ Core Architecture
-The system consists of three primary agents orchestrated by a top-level Conversational Router:
 
-1. **RAG Extraction Agent** — Rapidly searches the Vertex AI Datastore. Instructed to strictly output `not_answerable` if the retrieved context is insufficient.
-2. **Evaluator Judge Agent** — Critiques the RAG output with structured Pydantic output. Issues a `not_answerable` decision if the answer is ungrounded or incomplete, signalling the router to fallback.
-3. **Long Context (LC/RC) Agent** — The ultimate fallback. Ingests raw text files directly from disk for deep reading comprehension, designed to answer what the basic datastore chunks missed.
+The system utilizes a **Self-Reflective Router** that orchestrates between a high-speed RAG pipeline and a high-precision Long-Context fallback.
+
+```mermaid
+graph TD
+    User([User Query]) --> Router{Self-Route Router}
+    Router -- "1. Invoke Tool" --> RAG_Pipe[RAG Pipeline]
+
+    subgraph RAG_Pipeline [Sequential Pipeline]
+    RAG_Agent[RAG Data Agent] -- "rag_answer" --> Eval_Agent[Evaluator Agent]
+    Eval_Agent -- "rag_eval {decision, reason, rag_answer}" --> RAG_Pipe
+    end
+
+    RAG_Pipe -- "'answerable'" --> Router
+    RAG_Pipe -- "'not_answerable'" --> LC_Fallback[Long Context Agent]
+
+    Router -- "Pure Relay (Status: answerable)" --> Final_Ans([Final Answer])
+    LC_Fallback -- "Deep Dive (Status: not_answerable)" --> Final_Ans
+```
+
+1. **RAG Data Agent** — Searches the Vertex AI Datastore. Strictly grounded to GlobalCorp policies.
+2. **Evaluator Agent** — A structured Pydantic judge that validates the RAG output. If the result is ungrounded or missing, it issues a `not_answerable` signal.
+3. **Long Context (LC) Agent** — The ultimate fallback. Ingests raw text files directly for deep reading comprehension, capturing details that RAG chunks might miss.
 
 ## 📂 Repository Structure
+
 ```
 Self-Route LLM/
 │
-├── README.md                    # This file
-├── generate_rag_files.py        # Utility to procedurally generate .pdf / .docx test data
+├── README.md                    # This file (Architecture & Setup)
+├── generate_rag_files.py        # Procedurally generate .pdf / .docx for RAG Datastore
 │
 └── rag_lc_agent/
-    ├── agent.py                 # ADK Web entrypoint, Root Conversational Router
-    ├── config.py                # Centralized .env variable management
-    ├── instructions.py          # All LLM system prompts (routing, RAG, eval, LC)
-    ├── tool.py                  # load_docs() utility for Long Context ingestion
-    ├── .env                     # Environment configuration (do not commit)
+    ├── agent.py                 # Root Conversational Router (Self-Route entrypoint)
+    ├── config.py                # Environment & Configuration manager
+    ├── instructions.py          # Unified system prompts (RAG, Eval, LC, Router)
+    ├── tool.py                  # Long Context ingestion utility
     │
-    ├── subagents/               # Individual agent definitions
+    ├── subagents/               # Agent definitions
     │   ├── rag.py               # Vertex AI Search Agent
-    │   ├── evaluator.py         # Output evaluation with structured JSON output
-    │   ├── long_context.py      # Deep reading comprehension fallback Agent
-    │   └── README.md            # Subagents module documentation
+    │   ├── evaluator.py         # Structured Evaluator (Pydantic schema)
+    │   └── long_context.py      # Full-context Fallback Agent
     │
-    ├── tests/
-    │   ├── test_data.py         # 9 Categorized test queries with Ground Truth answers
-    │   ├── eval_metrics.py      # LLM-as-a-Judge scoring definitions
-    │   ├── run_evals.py         # Main automated evaluation script → outputs CSV
-    │   └── README.md            # Tests module documentation
+    ├── tests/                   # Validation Framework
+    │   ├── test_data.py         # 12 Categorized test cases (RAG Unique, LC > RAG, etc.)
+    │   ├── eval_metrics.py      # LLM-as-a-Judge scoring (1-5 scale)
+    │   └── run_evals.py         # Automated execution script → evaluation_results.csv
     │
-    └── docs/                    # Ground-truth text files for the Long Context Agent
+    └── docs/                    # Ground-truth policies for Long Context Agent
         ├── remote_work_policy.txt
-        ├── leave_policy.txt
-        └── code_of_conduct.txt
+        ├── travel_policy.txt      # (NEW) Detailed Travel & Per Diem
+        ├── code_of_conduct.txt
+        └── parental_leave_appendix.txt # (NEW) Detailed edge cases
 ```
 
 ## ⚙️ Setup Instructions
 
 ### 1. Prerequisites
-Ensure you have Python 3.10+ and access to a Google Cloud Project with Vertex AI and Vertex AI Search APIs enabled.
 
-### 2. Install dependencies
+Python 3.10+ and a Google Cloud Project with Vertex AI Search enabled.
+
+### 2. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
-Populate `rag_lc_agent/.env` with your values:
-```bash
-GOOGLE_GENAI_USE_VERTEXAI=1
-GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_CLOUD_LOCATION=us-central1
-DATASTORE_RESOURCE=projects/<PROJECT_ID>/locations/global/collections/default_collection/dataStores/<DATASTORE_ID>
-DOCS_FOLDER=./docs
-MAX_RESULTS=3
-AGENT_MODEL=gemini-2.5-flash
-```
+### 3. Configure Environment
 
-### 4. (Optional) Generate test datasets for Vertex Datastore
-Run the generation script to create `.pdf` and `.docx` files for upload to your datastore:
+Populate `rag_lc_agent/.env` with your `DATASTORE_RESOURCE` and `GOOGLE_CLOUD_PROJECT`.
+
+### 4. Seed RAG Datastore
+
+Run the generator and upload the resulting files from `rag_docs_to_upload/` to your Vertex AI Search datastore:
+
 ```bash
-pip install fpdf python-docx
 python generate_rag_files.py
 ```
 
 ## 🚀 Running the Agent
 
-### Start ADK Web Interface
+### Start Conversational Web UI
+
 ```bash
 adk web
 ```
-Open your browser at `http://localhost:8000` to interact with the Self-Route conversational agent.
 
 ### Run Automated Evaluation Suite
+
 ```bash
-python rag_lc_agent/tests/run_evals.py
+python -m rag_lc_agent.tests.run_evals
 ```
-This will run 9 categorized queries (RAG Unique, RAG > LC, LC > RAG) and export the evaluation results to `rag_lc_agent/tests/evaluation_results.csv`.
+
+This runs **12 baseline queries** and exports scores for **Correctness**, **Faithfulness**, and **Completeness** to `rag_lc_agent/tests/evaluation_results.csv`.
+
+> [!NOTE]
+> All test cases and ground truth data in this repository were generated using AI for research and demonstration purposes.
+
+---
+
+## ✍️ Author & Connect
+
+If you found this project helpful, please **star the repository**! 🌟
+
+- **Medium**: [Read more articles on AI & RAG](https://medium.com/@pandeyrahulraj99)
+- **LinkedIn**: [Connect with me on LinkedIn](https://www.linkedin.com/in/rahulraj31/)

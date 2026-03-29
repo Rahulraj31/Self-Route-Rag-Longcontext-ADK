@@ -18,3 +18,10 @@ Employees must disclose any relationships, investments, or outside business acti
 
 5. CONFIDENTIALITY
 All internal strategies, financial data, and customer information are strictly confidential. Discussing unreleased products in public forums, social media, or with family members is prohibited. Violations of the Non-Disclosure Agreement (NDA) may result in legal action.
+
+### 🛡️ CODE OF CONDUCT QUICK REFERENCE (DOC ID: COC-2024):
+- **Ethics Hotline (24/7)**: 1-800-555-0199
+- **Ethics Online**: ethics.globalcorp.internal
+- **Gift Limit**: $50 (max from vendors).
+- **Reporting Channels**: Manager, HRBP, or Hotline.
+- **Reporting Portal**: Conflict of Interest Portal (Workday).

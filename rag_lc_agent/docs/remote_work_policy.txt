@@ -16,4 +16,12 @@ Additionally, a recurring monthly stipend of $100 is provided to cover home inte
 All work must be conducted on company-issued laptops (MacBook Pro M3 or Dell XPS 15). The use of personal devices for accessing the GlobalCorp VPN or sensitive customer data is strictly prohibited. Employees must ensure their home Wi-Fi network is password-protected using WPA3 encryption. USB mass storage devices are disabled on all remote laptops.
 
 5. RELOCATION
-Employees may work temporarily from any location within their home country for up to 90 days per calendar year. Permanent relocation to a different state or country requires HR approval 60 days in advance due to tax and payroll compliance requirements.
+- Permanent relocation to a different state or country requires HR approval 60 days in advance due to tax and payroll compliance requirements.
+
+### 🛡️ REMOTE WORK QUICK REFERENCE (DOC ID: RMT-2025):
+- **Home Office Stipend**: $1,000 (One-time, receipts within 30 days).
+- **Monthly Stipend**: $100 (Internet/Phone).
+- **ISP Speed Specs**: Min 100 Mbps Download / 20 Mbps Upload.
+- **Core Hours**: 10:00 AM - 3:00 PM EST (Strict availability).
+- **Relocation Notice**: 60 days for permanent moves. 90 days max for temp domestic work.
+- **Device Security**: WPA3 Encryption required. USB storage disabled.

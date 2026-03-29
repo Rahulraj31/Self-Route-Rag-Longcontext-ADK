@@ -1,0 +1,42 @@
+# GlobalCorp Internal Policy: Business Travel and Reimbursement
+Effective Date: January 1, 2024
+
+0. SUMMARY
+This policy outlines the guidelines for business travel, reimbursement, and remote work expectations for all GlobalCorp employees.
+
+1. TRAVEL APPROVAL
+All business travel must be approved by the Department Head at least three weeks before the departure date. International travel requires additional approval from the CFO.
+
+2. FLIGHTS AND TRANSPORTATION
+- Employees must book economy class for all flights under 6 hours.
+- Premium Economy is allowed for international flights exceeding 6 hours.
+- Business Class is only permitted for VP-level and above, or with explicit CFO approval for medical reasons.
+- Taxis, Ubers, and Lyfts are reimbursable for transport to/from airports and hotels.
+
+3. ACCOMMODATIONS
+- Employees should stay in "Preferred Hotels" listed in the Travel Portal.
+- The maximum nightly rate for domestic cities is $250 (excluding NYC, SF, and DC, which allow up to $400).
+- International rates are subject to the "Global Lodging Index" published on the intranet.
+
+4. MEALS AND INCIDENTALS (PER DIEM)
+GlobalCorp provides a daily per diem based on the destination:
+- Standard Domestic: $75/day.
+- High-Cost Cities (NYC, SF, London, Tokyo, Zurich): $120/day.
+- Other International: $90/day.
+Note: If a meal is provided by a host or as part of a conference, the per diem must be reduced by $20 (breakfast), $25 (lunch), or $40 (dinner).
+
+5. REIMBURSEMENT PROCESS
+- Expense reports must be submitted through Concur within 30 days of returning from travel.
+- Receipts are required for all individual expenses exceeding $25.
+- Personal expenses (minibar, laundry for trips under 4 days, spa services) are NOT reimbursable.
+- The "Travel Reimbursement Hotline" for issues is 1-888-GLOBAL-TRV.
+
+### 🛡️ TRAVEL QUICK REFERENCE (DOC ID: TRV-2024):
+- **Daily Per Diem**: $75 (Domestic), $120 (High-Cost), $90 (International).
+- **Hotel Max Rate**: $250 (General Domestic), $400 (NYC, SF, DC).
+- **Flight Eligibility**: 
+    *   Economy: All flights < 6 hours.
+    *   Premium Economy: International flights > 6 hours.
+    *   Business: VP-level+ or CFO-approved medical necessity.
+- **Reporting**: Reports due in Concur within 30 days. Receipts required for items > $25.
+- **Hotline**: 1-888-GLOBAL-TRV.

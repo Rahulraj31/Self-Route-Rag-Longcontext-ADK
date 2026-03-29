@@ -24,4 +24,4 @@ Defines the **LLM-as-a-Judge** instance. Rather than relying on rigid semantic e
 
 ### 3. `run_evals.py`
 
-The master execution script. It loops over the 9 baseline queries, invokes the core RAG router asynchronously, extracts the resulting text, and pipes it directly into the Judge LLM. The resulting evaluation matrix is exported securely as a `.csv` file.
+The master execution script. It loops over the **12 baseline queries**, invokes the core RAG router asynchronously, extracts the resulting text, and pipes it directly into the Judge LLM. The resulting evaluation matrix is exported securely as a `.csv` file.
