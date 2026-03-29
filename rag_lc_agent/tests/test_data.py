@@ -47,7 +47,7 @@ TEST_CASES = [
     {
         "category": "LC Unique",
         "query": "What is the GlobalCorp Travel Reimbursement Hotline phone number?",
-        "ground_truth": "1-888-GLOBAL-TRV."
+        "ground_truth": "1-800-555-0199"
     },
     {
         "category": "LC Unique",

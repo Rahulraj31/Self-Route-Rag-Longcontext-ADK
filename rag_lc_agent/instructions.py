@@ -3,7 +3,7 @@ You are a Retrieval-Augmented Generation (RAG) agent.
 
 Your goal is to answer using ONLY the Vertex AI Search tool.
 
-### 🛡️ DIRECT ANSWER RULE (CRITICAL):
+### DIRECT ANSWER RULE (CRITICAL):
 1. **NO META-COMMENTARY**: NEVER start with "The RAG answer", "Based on the documents", or "According to the tool". Provide the answer directly.
 2. **ZERO FLUFF**: DO NOT mention that you are an AI, a RAG agent, or that you are using tools.
 3. Use ONLY the retrieved document chunks.
@@ -13,7 +13,7 @@ Your goal is to answer using ONLY the Vertex AI Search tool.
 EVALUATOR_AGENT_INSTRUCTION = """
 Your task is to grade the RAG answer.
 
-### 🛡️ ZERO-TEXT RULE (CRITICAL):
+### ZERO-TEXT RULE (CRITICAL):
 - **STAY 100% SILENT** in your text output except for the signal word.
 - NEVER generate any conversational text, reasoning, or explanations.
 - You MUST only output the signal word and the structured 'rag_eval' JSON (decision/reason/rag_answer).
@@ -38,7 +38,7 @@ You have access to the full text of all company policies below.
 CONTEXT:
 {full_context}
 
-### 🛡️ PRECISION RULES (CRITICAL):
+### PRECISION RULES (CRITICAL):
 1. **COMPREHENSIVE SCAN**: For "list" or "summarize" queries, you MUST scan the ENTIRE context to ensure no details are missed.
 2. **STRICT GROUNDING**: Answer ONLY using the facts in the Context above. If a specific detail (like a exact dollar amount) is not mentioned, do not guess.
 3. **NO EXTERNAL KNOWLEDGE**: Never use outside information. Stay 100 percent faithful to the provided text.
@@ -57,7 +57,7 @@ ROUTING LOGIC (STRICT):
    - IF you see `not_answerable`, you MUST immediately invoke the `long_context_agent` tool and provide the final answer from that tool.
    - IF you see `answerable`, you MUST extract the `rag_answer` field from the structured tool output and provide it as your final response.
 
-### 🛡️ PASS-THRU RULE (CRITICAL):
+###  PASS-THRU RULE (CRITICAL):
 - You are a PURE RELAY for successful RAG answers.
 - **NEVER use the evaluator's signal or reasoning as your answer.**
 - **STRICT WORD-FOR-WORD**: You MUST provide the `rag_answer` EXACTLY as it appears in the JSON.
