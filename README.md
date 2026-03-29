@@ -41,18 +41,18 @@ Self Route
 ### Routing Flow (Diagram)
 
 ```mermaid
-graph TD
+graph LR
     %% Node Definitions
     User([User Query]):::user
     Router{<b>Self-Route Router</b>}:::router
 
-    subgraph Stage1 ["Stage 1: Cheap Assessment (RAG)"]
+    subgraph Stage1 [Stage 1: Cheap Assessment]
         direction TB
         Retriever[Retriever Agent]:::rag
         Evaluator[Evaluator Agent]:::rag
     end
 
-    subgraph Stage2 ["Stage 2: Conditional Fallback (LC)"]
+    subgraph Stage2 [Stage 2: Conditional Fallback]
         direction TB
         RAGAgent[RAG Answer Agent]:::rag
         LCAgent[Long Context Agent]:::lc
@@ -60,22 +60,22 @@ graph TD
 
     Final([Final Answer]):::user
 
-    %% Style Definitions
+    %% Style
     classDef user fill:#f8f9fa,stroke:#333,stroke-width:2px,color:#000
     classDef router fill:#2a9d8f,stroke:#1d7066,stroke-width:3px,color:#fff
     classDef rag fill:#e9c46a,stroke:#c4a250,stroke-width:2px,color:#000
     classDef lc fill:#e76f51,stroke:#b8533d,stroke-width:2px,color:#fff
 
-    %% Flow
+    %% Connections
     User --> Router
     Router ==>|1. Fetch| Retriever
-    Retriever -.->|retrieved_chunks| Router
+    Retriever -.->|chunks| Router
 
     Router ==>|2. Evaluate| Evaluator
-    Evaluator -.->|answerable / not_answerable| Router
+    Evaluator -.->|decision| Router
 
-    Router -.->|3a. If answerable| RAGAgent
-    Router -.->|3b. If not_answerable| LCAgent
+    Router -.->|3a. Answerable| RAGAgent
+    Router -.->|3b. Not Answerable| LCAgent
 
     RAGAgent --> Final
     LCAgent --> Final
