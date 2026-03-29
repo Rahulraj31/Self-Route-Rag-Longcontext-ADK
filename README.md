@@ -24,43 +24,6 @@ The paper proposes a two-stage routing pipeline:
 
 **Important**: This is NOT "predict before running". They actually try RAG, ask the model "are you confident?", and only then decide. Routing signal = model self-confidence / self-reflection.
 
-## 🛠️ Setup & Installation
-
-### 1. Environment Setup
-
-Create and activate a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-### 2. Install Dependencies
-
-```bash
-pip install google-adk google-cloud-aiplatform python-dotenv
-```
-
-### 3. Configure Environment Variables
-
-Create a `.env` file in the `rag_lc_agent/` directory with the following structure:
-
-```env
-# Google Cloud Configuration
-GOOGLE_GENAI_USE_VERTEXAI=1
-GOOGLE_CLOUD_PROJECT="your-project-id"
-GOOGLE_CLOUD_LOCATION="us-central1"
-
-# RAG Configuration
-DATASTORE_RESOURCE="projects/YOUR_PROJECT/locations/global/collections/default_collection/dataStores/YOUR_DATASTORE"
-SEARCH_ENGINE_ID="projects/YOUR_PROJECT/locations/global/collections/default_collection/engines/YOUR_ENGINE"
-
-# Agent Tuning
-AGENT_MODEL="gemini-2.5-flash"
-MAX_RESULTS=3
-DOCS_FOLDER="./docs"
-```
-
 ## 🏗️ Core Architecture
 
 The updated architecture uses a **Pre-Generation Evaluator Gate** to optimize routing before the final answer is generated.
@@ -143,6 +106,42 @@ Self-Route LLM/
     └── docs/                    # Ground-truth policies for Long Context
 ```
 
+## 🛠️ Setup & Installation
+
+### 1. Environment Setup
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install google-adk google-cloud-aiplatform python-dotenv
+```
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the `rag_lc_agent/` directory with the following structure:
+
+```env
+# Google Cloud Configuration
+GOOGLE_GENAI_USE_VERTEXAI=1
+GOOGLE_CLOUD_PROJECT="your-project-id"
+GOOGLE_CLOUD_LOCATION="us-central1"
+
+# RAG Configuration
+DATASTORE_RESOURCE="projects/YOUR_PROJECT/locations/global/collections/default_collection/dataStores/YOUR_DATASTORE"
+SEARCH_ENGINE_ID="projects/YOUR_PROJECT/locations/global/collections/default_collection/engines/YOUR_ENGINE"
+
+# Agent Tuning
+AGENT_MODEL="gemini-2.5-flash"
+MAX_RESULTS=3
+DOCS_FOLDER="./docs"
+```
 ## 🚀 Evaluation Pipeline (`run_evals.py`)
 
 The evaluation script validates the routing logic by capturing:
