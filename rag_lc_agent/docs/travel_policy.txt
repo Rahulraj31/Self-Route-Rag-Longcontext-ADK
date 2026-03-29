@@ -29,7 +29,7 @@ Note: If a meal is provided by a host or as part of a conference, the per diem m
 - Expense reports must be submitted through Concur within 30 days of returning from travel.
 - Receipts are required for all individual expenses exceeding $25.
 - Personal expenses (minibar, laundry for trips under 4 days, spa services) are NOT reimbursable.
-- The "Travel Reimbursement Hotline" for issues is 1-888-GLOBAL-TRV.
+- The "Travel Reimbursement Hotline" for issues is 1-800-555-0199
 
 ### 🛡️ TRAVEL QUICK REFERENCE (DOC ID: TRV-2024):
 - **Daily Per Diem**: $75 (Domestic), $120 (High-Cost), $90 (International).
@@ -39,4 +39,4 @@ Note: If a meal is provided by a host or as part of a conference, the per diem m
     *   Premium Economy: International flights > 6 hours.
     *   Business: VP-level+ or CFO-approved medical necessity.
 - **Reporting**: Reports due in Concur within 30 days. Receipts required for items > $25.
-- **Hotline**: 1-888-GLOBAL-TRV.
+- **Hotline**: 1-800-555-0199.
