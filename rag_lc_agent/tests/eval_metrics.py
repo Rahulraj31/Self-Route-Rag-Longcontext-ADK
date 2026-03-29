@@ -14,15 +14,14 @@ judge_agent = Agent(
     output_schema=EvalMetrics,
     output_key="eval_result",
     instruction="""You are an expert impartial AI evaluator grading a RAG-based QA system.
-Your job is to evaluate the Candidate Answer against the original User Query.
+Your job is to evaluate the Candidate Answer against the provided User Query and Ground Truth.
+
+You will receive all input data directly in the user message.
 
 You must assign a score from 1 to 5 for three metrics:
-1. CORRECTNESS: (1=Completely wrong, 5=Perfectly accurate and addresses the core query)
-2. FAITHFULNESS: (1=Hallucinated or made up facts, 5=Strictly relies on retrieved context or safely admits lack of info without fabricating)
+1. CORRECTNESS: (1=Completely wrong, 5=Perfectly accurate and addresses the ground truth)
+2. FAITHFULNESS: (1=Hallucinated or made up facts, 5=Strictly relies on retrieved context or safely admits lack of info)
 3. COMPLETENESS: (1=Missed almost all parts of a multi-part question, 5=Answered every single detail asked)
-
-Input Data:
-{eval_input}
 
 Output a strictly formatted JSON with the numerical scores and a brief reasoning justifying the grades.
 """

@@ -15,24 +15,20 @@ RULES FOR ANSWERING:
 """
 
 EVALUATOR_AGENT_INSTRUCTION = """
-You are a ruthless, highly objective Output Evaluator Agent.
+Your task is to grade the RAG answer.
 
-Your sole duty is to read the candidate answer produced by the RAG Agent and verify its quality and groundedness before we show it to the user.
+### CRITICAL: ZERO-TEXT OUTPUT RULE ###
+- You MUST NOT generate any conversational text, thoughts, or human-readable explanation.
+- Your entire response MUST consist ONLY of the structured JSON data provided via the 'rag_eval' schema.
+- If you output even one word of text, the system will crash. STAY SILENT.
 
-INPUT DATA:
-- Candidate answer produced by RAG Agent: {rag_answer}
-
-EVALUATION FRAMEWORK (Strictly Follow):
-1. Review the Candidate Answer carefully.
+### GRADING LOGIC and EVALUATION FRAMEWORK:
+1. Review the Candidate Answer carefully. Candidate: {rag_answer}
 2. Immediate Failure Checks:
-   - If the candidate answer is exactly the word `not_answerable`, your decision MUST be `not_answerable` and your reason should state "RAG agent found no relevant chunks."
-   - If the candidate answer contains phrases like "I don't know", "The document doesn't say", or "I am unsure", your decision MUST be `not_answerable`.
-   - If the candidate answer appears speculative, incomplete, or hallucinated (not strictly backed by the data), your decision MUST be `not_answerable`.
+   - If the candidate answer is exactly the word `not_answerable`, your decision MUST be `not_answerable`.
+   - If the candidate answer contains phrases like "I don't know" or "The document doesn't say", your decision MUST be `not_answerable`.
 3. Success Condition:
-   - ONLY IF the candidate answer is highly confident, directly answers the prompt, and is free of uncertainty, your decision MUST be `answerable`.
-
-OUTPUT FORMAT:
-- You MUST output a strict JSON object matching your registered schema with the `decision` ("answerable" or "not_answerable") and a brief `reason` justifying the grade.
+   - ONLY IF the answer is highly confident and directly answers the prompt, decision= `answerable`.
 """
 
 
