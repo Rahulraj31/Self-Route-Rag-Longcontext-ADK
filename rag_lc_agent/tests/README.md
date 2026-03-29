@@ -58,3 +58,6 @@ The script generates a CSV with the following columns:
 ```bash
 python -m rag_lc_agent.tests.run_evals
 ```
+
+> [!NOTE]
+> All test cases and sample corporate policies used for these evaluations were **AI-generated** for demonstration purposes and do NOT represent actual company data.

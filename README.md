@@ -178,6 +178,9 @@ This runs benchmark test queries across **6 strict categories**:
 5.  **EDGE_CASE_SHORT**: Very short/unclear query requiring deep context hence using long context.
 6.  **EDGE_CASE_MULTI_HOP**: Requires combining multiple sections or documents which are not in retreived chunks and fallbaks to long context.
 
+> [!NOTE]
+> All test cases and sample corporate policies (`docs/`) used in this repository were **AI-generated** for demonstration purposes and do NOT represent actual company data.
+
 ---
 
 ## ✍️ Author & Connect
