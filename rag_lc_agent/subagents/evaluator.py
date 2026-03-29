@@ -8,6 +8,7 @@ from ..instructions import EVALUATOR_AGENT_INSTRUCTION
 class EvalDecision(BaseModel):
     decision: Literal["answerable", "not_answerable"]
     reason: str
+    rag_answer: str
 
 evaluator_agent = Agent(
     name="evaluator_agent",
