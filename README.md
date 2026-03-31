@@ -1,5 +1,5 @@
 # Self-Route LLM Agent Architecture
-
+![intro image](Intro-image.png) 
 > [!IMPORTANT]
 > This project is created for research and demonstration purposes to showcase the implementation of the **Self-Route** method. A production-grade enterprise system would include additional components such as robust authentication, complex ETL pipelines, and specialized monitoring. For this demo, we use Google Vertex AI Search for RAG simplicity and a local `docs/` folder for the Long Context example. This solution is designed to be extensible and can be upgraded for production scenarios.
 
